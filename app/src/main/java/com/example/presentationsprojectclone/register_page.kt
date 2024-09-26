@@ -1,88 +1,150 @@
-import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
-import android.widget.Toast
+package com.example.presentationsprojectclone
+
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
-import com.example.presentationsprojectclone.R
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import java.util.HashMap
+import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.widget.Button
+import android.widget.ImageView
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 
 class register_page : AppCompatActivity() {
-    private lateinit var auth: FirebaseAuth
-    private lateinit var firestore: FirebaseFirestore
 
-    private lateinit var regEmailInput: EditText
-    private lateinit var regNameInput: EditText
-    private lateinit var regPasswordInput: EditText
-    private lateinit var regLanguageInput: EditText
-    private lateinit var regCountryInput: EditText
-    private lateinit var registerSubmitBtn: Button
+    private val regEmailInputField by lazy { findViewById<TextInputLayout>(R.id.reg_email_input_field) }
+    private val regEmailInput by lazy { findViewById<TextInputEditText>(R.id.reg_email_input) }
+    private val regNameInputField by lazy { findViewById<TextInputLayout>(R.id.reg_name_input_field) }
+    private val regNameInput by lazy { findViewById<TextInputEditText>(R.id.reg_name_input) }
+    private val regPasswordInputField by lazy { findViewById<TextInputLayout>(R.id.reg_password_input_field) }
+    private val regPasswordInput by lazy { findViewById<TextInputEditText>(R.id.reg_password_input) }
+    private val regLanguageInputField by lazy { findViewById<TextInputLayout>(R.id.reg_language_input_field) }
+    private val regLanguageInput by lazy { findViewById<TextInputEditText>(R.id.reg_language_input) }
+    private val regCountryInputField by lazy { findViewById<TextInputLayout>(R.id.reg_country_input_field) }
+    private val regCountryInput by lazy { findViewById<TextInputEditText>(R.id.reg_country_input) }
+    private val regSubmitBtn by lazy { findViewById<Button>(R.id.register_submit_btn) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register_page)
 
-        auth = FirebaseAuth.getInstance()
-        firestore = FirebaseFirestore.getInstance()
-
-        // Initialize your EditTexts and Button
-        regEmailInput = findViewById(R.id.reg_email_input)
-        regNameInput = findViewById(R.id.reg_name_input)
-        regPasswordInput = findViewById(R.id.reg_password_input)
-        regLanguageInput = findViewById(R.id.reg_language_input)
-        regCountryInput = findViewById(R.id.reg_country_input)
-        registerSubmitBtn = findViewById(R.id.register_submit_btn)
-
-        registerSubmitBtn.setOnClickListener {
-            registerUser()
-        }
-    }
-
-    private fun registerUser() {
-        val email = regEmailInput.text.toString()
-        val name = regNameInput.text.toString()
-        val password = regPasswordInput.text.toString()
-        val language = regLanguageInput.text.toString()
-        val country = regCountryInput.text.toString()
-
-        if (email.isEmpty() || name.isEmpty() || password.isEmpty() || language.isEmpty() || country.isEmpty()) {
-            Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
-            return
+        // Handle the back button click
+        val backBtn = findViewById<ImageView>(R.id.back_btn)
+        backBtn.setOnClickListener {
+            val backIntent = Intent(this, login_with_email_page::class.java)
+            startActivity(backIntent)
         }
 
-        // Create user with email and password
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    // User registration successful, now save data to Firestore
-                    val userId = auth.currentUser?.uid ?: return@addOnCompleteListener
-                    saveUserData(userId, email, name, language, country)
-                } else {
-                    // If registration fails, display a message to the user.
-                    Toast.makeText(this, "Registration failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
-                }
+        // Add TextWatchers to clear errors when typing
+        addTextWatchers()
+
+        regSubmitBtn.setOnClickListener {
+            val email = regEmailInput.text.toString()
+            val name = regNameInput.text.toString()
+            val password = regPasswordInput.text.toString()
+            val language = regLanguageInput.text.toString()
+            val country = regCountryInput.text.toString()
+
+            var isValid = true
+
+            // Validate email
+            if (email.isEmpty()) {
+                regEmailInputField.error = "Email address is required"
+                isValid = false
+            } else if (email == "demo@gmail.com") {
+                regEmailInputField.error = "Email Already Exists"
+                isValid = false
+            } else {
+                regEmailInputField.error = null
             }
+
+            // Validate name
+            if (name.isEmpty()) {
+                regNameInputField.error = "Name is required"
+                isValid = false
+            } else {
+                regNameInputField.error = null
+            }
+
+            // Validate password
+            if (password.isEmpty()) {
+                regPasswordInputField.error = "Password is required"
+                isValid = false
+            } else if (password.length < 6) {
+                regPasswordInputField.error = "Password must be at least 6 characters"
+                isValid = false
+            } else {
+                regPasswordInputField.error = null
+            }
+
+            // Validate language
+            if (language.isEmpty()) {
+                regLanguageInputField.error = "Language is required"
+                isValid = false
+            } else {
+                regLanguageInputField.error = null
+            }
+
+            // Validate country
+            if (country.isEmpty()) {
+                regCountryInputField.error = "Country is required"
+                isValid = false
+            } else {
+                regCountryInputField.error = null
+            }
+
+            if (isValid) {
+                // All fields are valid, proceed with next action
+                val nextIntent = Intent(this, MainActivity::class.java)
+                startActivity(nextIntent)
+            }
+        }
+
+        // Set default values
+        regEmailInput.setText("new@gmail.com")
+        regLanguageInput.setText("English")
+        regCountryInput.setText("India")
     }
 
-    private fun saveUserData(userId: String, email: String, name: String, language: String, country: String) {
-        val user = HashMap<String, Any>()
-        user["email"] = email
-        user["name"] = name
-        user["language"] = language
-        user["country"] = country
+    private fun addTextWatchers() {
+        regEmailInput.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                regEmailInputField.error = if (s.toString() == "demo@gmail.com") "Email Already Exists" else null
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
 
-        // Save user data to Firestore
-        firestore.collection("users").document(userId)
-            .set(user)
-            .addOnSuccessListener {
-                Toast.makeText(this, "Registration successful", Toast.LENGTH_SHORT).show()
-                // Redirect to home or login page
-                // startActivity(Intent(this, HomePage::class.java))
-                // finish()
+        regNameInput.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                regNameInputField.error = null
             }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "Error saving user data: ${e.message}", Toast.LENGTH_SHORT).show()
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+        regPasswordInput.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                regPasswordInputField.error = if (s.toString() != "123456") "Please enter valid password" else null
             }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+        regLanguageInput.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                regLanguageInputField.error = null
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+        regCountryInput.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                regCountryInputField.error = null
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
     }
 }

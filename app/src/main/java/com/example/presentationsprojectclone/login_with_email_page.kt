@@ -2,8 +2,9 @@ package com.example.presentationsprojectclone
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
-import android.widget.Button
 import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -14,43 +15,87 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
+import com.google.firebase.auth.AuthCredential
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 
 class login_with_email_page : AppCompatActivity() {
 
-    private lateinit var googleSignInClient: GoogleSignInClient
-    private lateinit var emailInput: TextInputEditText
+    private val emailInputField by lazy { findViewById<TextInputLayout>(R.id.email_input_field) }
+    private val emailInput by lazy { findViewById<TextInputEditText>(R.id.email_input) }
+    private val continueWithEmail by lazy { findViewById<android.widget.Button>(R.id.email_submit_btn) }
+    private val googleSignInButton by lazy { findViewById<RelativeLayout>(R.id.continue_with_google) }
+    private val facebookSignInButton by lazy { findViewById<RelativeLayout>(R.id.continue_with_facebook) }
 
-    companion object {
-        private const val RC_SIGN_IN = 1001
-        const val EXTRA_EMAIL = "EXTRA_EMAIL"
-    }
+    private lateinit var firebaseAuth: FirebaseAuth
+    private lateinit var googleSignInClient: GoogleSignInClient
+    private val RC_SIGN_IN = 9001 // Request code for Google Sign-In
+    private val TAG = "login_with_email_page"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login_with_email_page)
 
-        emailInput = findViewById(R.id.email_input)
+        firebaseAuth = FirebaseAuth.getInstance()
 
-        // Configure Google Sign-In
+        // Google Sign-In configuration
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.web_client_id)) // Replace with your actual web client ID
             .requestEmail()
             .build()
-
         googleSignInClient = GoogleSignIn.getClient(this, gso)
 
-        findViewById<RelativeLayout>(R.id.continue_with_google).setOnClickListener {
+        googleSignInButton.setOnClickListener {
             signInWithGoogle()
         }
 
-        findViewById<Button>(R.id.email_submit_btn).setOnClickListener {
+        facebookSignInButton.setOnClickListener {
+            // TODO: Implement Facebook login functionality
+            Toast.makeText(this, "Facebook login not implemented yet", Toast.LENGTH_SHORT).show()
+        }
+
+        // Add TextWatcher to clear the error or show a valid email error while typing
+        emailInput.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val email = s.toString()
+                when {
+                    email.isEmpty() -> {
+                        emailInputField.error = null
+                    }
+                    isValidEmail(email) -> {
+                        emailInputField.error = null
+                    }
+                    else -> {
+                        emailInputField.error = "Please enter a valid email"
+                    }
+                }
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+        continueWithEmail.setOnClickListener {
             val email = emailInput.text.toString()
-            if (email.isNotEmpty()) {
-                // Redirect to the register page with the entered email
-                val intent = Intent(this, register_page::class.java)
-                intent.putExtra(EXTRA_EMAIL, email)
-                startActivity(intent)
-            } else {
-                Toast.makeText(this, "Please enter your email", Toast.LENGTH_SHORT).show()
+
+            when {
+                email.isEmpty() -> {
+                    emailInputField.error = "Email address is required"
+                }
+                isValidEmail(email) -> {
+                    emailInputField.error = null
+                    // Navigate to the respective page based on email
+                    when (email) {
+                        "new@gmail.com" -> startActivity(Intent(this, register_page::class.java))
+                        "demo@gmail.com" -> startActivity(Intent(this, login_page::class.java))
+                        else -> Toast.makeText(this, "Unknown email", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                else -> {
+                    emailInputField.error = "Please enter a valid email"
+                }
             }
         }
     }
@@ -68,21 +113,36 @@ class login_with_email_page : AppCompatActivity() {
         }
     }
 
-    private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
+    private fun handleSignInResult(task: Task<GoogleSignInAccount>) {
         try {
-            val account = completedTask.getResult(ApiException::class.java)
-            // Signed in successfully
-            val email = account?.email ?: ""
-            Toast.makeText(this, "Signed in as $email", Toast.LENGTH_SHORT).show()
-
-            // Directly redirect to the home page
-            val intent = Intent(this, Home::class.java)
-            startActivity(intent)
-            finish() // Close the login page
-
+            val account = task.getResult(ApiException::class.java)
+            if (account != null) {
+                val idToken = account.idToken
+                val credential = GoogleAuthProvider.getCredential(idToken, null)
+                firebaseAuthWithGoogle(credential)
+            }
         } catch (e: ApiException) {
-            Log.w("GoogleSignIn", "signInResult:failed code=" + e.statusCode)
-            Toast.makeText(this, "Google sign-in failed", Toast.LENGTH_SHORT).show()
+            Log.e(TAG, "Google sign in failed", e)
+            Toast.makeText(this, "Login Unsuccessful", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun firebaseAuthWithGoogle(credential: AuthCredential) {
+        firebaseAuth.signInWithCredential(credential)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
+                    val intent = Intent(this, Home::class.java)
+                    startActivity(intent)
+                    finish()
+                } else {
+                    Log.w(TAG, "signInWithCredential:failure", task.exception)
+                    Toast.makeText(this, "Authentication Failed.", Toast.LENGTH_SHORT).show()
+                }
+            }
+    }
+
+    private fun isValidEmail(email: String): Boolean {
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 }
