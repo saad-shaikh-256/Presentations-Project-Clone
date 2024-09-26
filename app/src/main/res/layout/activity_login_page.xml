@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".register_page">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:paddingLeft="18dp"
+        android:paddingTop="20dp"
+        android:paddingRight="18dp">
+
+        <!--    Title    -->
+        <RelativeLayout
+            android:id="@+id/Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/back_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:alpha="0.9"
+                android:background="@drawable/icon_leftarrow" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="24dp"
+                android:layout_toEndOf="@+id/back_btn"
+                android:fontFamily="@font/nunito"
+                android:gravity="center_horizontal|top"
+                android:lineSpacingExtra="2sp"
+                android:text="Sign in"
+                android:textSize="20sp" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/Input_Field"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/Title"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="30dp">
+
+            <!--    Email Input    -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/log_email_input_field"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:fontFamily="@font/nunito"
+                android:textColorHint="@color/grey"
+                android:textSize="12sp"
+                app:boxStrokeColor="@color/primary"
+                app:boxStrokeWidth="0.9dp"
+                app:boxStrokeWidthFocused="0.9dp"
+                app:endIconTint="@color/primary"
+                app:errorEnabled="true"
+                app:hintTextColor="@color/primary"
+                app:startIconTint="@color/black"
+                app:suffixTextColor="@color/black">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/log_email_input"
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/nunito"
+                    android:hint="Email address"
+                    android:hyphenationFrequency="none"
+                    android:inputType="textEmailAddress"
+                    android:letterSpacing="-0.02" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <!--    Password Input    -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/log_password_input_field"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/log_email_input_field"
+                android:layout_centerHorizontal="true"
+                android:fontFamily="@font/nunito"
+                android:textColorHint="@color/grey"
+                android:textSize="12sp"
+                app:boxStrokeColor="@color/primary"
+                app:boxStrokeWidth="0.9dp"
+                app:boxStrokeWidthFocused="0.9dp"
+                app:endIconMode="password_toggle"
+                app:endIconTint="@color/grey"
+                app:errorEnabled="true"
+                app:hintTextColor="@color/primary"
+                app:startIconTint="@color/black"
+                app:suffixTextColor="@color/black">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/log_password_input"
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/nunito"
+                    android:hint="Password"
+                    android:hyphenationFrequency="none"
+                    android:inputType="textPassword"
+                    android:letterSpacing="-0.02" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--    Forgot Password Button    -->
+
+            <TextView
+                android:id="@+id/log_forgot_password"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/log_password_input_field"
+                android:layout_alignParentRight="true"
+                android:fontFamily="@font/nunito_semibold"
+                android:gravity="center_horizontal|top"
+                android:lineSpacingExtra="5sp"
+                android:text="Forgot your password?"
+                android:textColor="@color/primary"
+                android:textSize="16sp"
+                android:translationY="-2.32sp" />
+
+            <!--    Submit Button    -->
+            <android.widget.Button
+                android:id="@+id/login_submit_btn"
+                android:layout_width="300dp"
+                android:layout_height="45dp"
+                android:layout_below="@id/log_forgot_password"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="24dp"
+                android:background="@drawable/radius_8px_primary_color"
+                android:fontFamily="@font/nunito_bold"
+                android:gravity="center"
+                android:text="Sign in"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="14sp" />
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/checkbox"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/login_submit_btn"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="20sp"
+                android:checked="true"
+                android:padding="8sp"
+                android:text="Remember me"
+                android:textSize="12sp"
+                app:boxStrokeColor="@color/primary" />
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+</RelativeLayout>

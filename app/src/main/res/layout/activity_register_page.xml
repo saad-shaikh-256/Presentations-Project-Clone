@@ -1,0 +1,374 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".register_page">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="0dp"
+        android:paddingLeft="30dp"
+        android:paddingRight="30dp"
+        android:paddingBottom="12dp">
+
+        <!--    Skip Policy    -->
+        <TextView
+            android:id="@+id/Skip"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:fontFamily="@font/nunito_medium"
+            android:gravity="center_horizontal|top"
+            android:lineSpacingExtra="5sp"
+            android:text="Not sure? Explore our designs!"
+            android:textColor="#222222"
+            android:textSize="14sp"
+            android:translationY="-2.32sp" />
+
+        <!--    Privacy Policy    -->
+        <TextView
+            android:id="@+id/terms_and_policy"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:fontFamily="@font/nunito_medium"
+            android:layout_above="@+id/Skip"
+            android:layout_marginBottom="16dp"
+            android:gravity="center_horizontal|top"
+            android:lineSpacingExtra="5sp"
+            android:text="By continuing, you agree to the terms of service and \n  privacy policy "
+            android:textColor="#222222"
+            android:textSize="12sp"
+            android:translationY="-2.32sp" />
+
+        <!--    Continue With Google    -->
+        <RelativeLayout
+            android:id="@+id/continue_with_google"
+            android:layout_width="300dp"
+            android:layout_height="48dp"
+            android:layout_above="@+id/terms_and_policy"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="16sp"
+            android:background="@drawable/radius_8px_white_color"
+            android:elevation="2dp"
+            android:padding="8dp">
+
+            <ImageView
+                android:id="@+id/google_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="18dp"
+                android:background="@drawable/icon_google" />
+
+            <TextView
+                android:layout_width="155dp"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:fontFamily="@font/nunito_semibold"
+                android:gravity="center_horizontal|top"
+                android:lineSpacingExtra="2sp"
+                android:text="Continue with Google"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                android:translationY="-0.95sp" />
+
+        </RelativeLayout>
+
+
+        <!--    Continue With Facebook    -->
+        <RelativeLayout
+            android:id="@+id/continue_with_facebook"
+            android:layout_width="300dp"
+            android:layout_height="48dp"
+            android:layout_above="@+id/continue_with_google"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="16sp"
+            android:background="@drawable/radius_8px_white_color"
+            android:elevation="2dp"
+            android:padding="8dp">
+
+            <ImageView
+                android:id="@+id/facebook_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="18dp"
+                android:background="@drawable/icon_facebook" />
+
+            <TextView
+                android:layout_width="155dp"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:fontFamily="@font/nunito_semibold"
+                android:gravity="center_horizontal|top"
+                android:lineSpacingExtra="2sp"
+                android:text="Continue with Facebook"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                android:translationY="-0.95sp" />
+
+        </RelativeLayout>
+
+        <!--    OR option    -->
+        <TextView
+            android:id="@+id/or"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/continue_with_facebook"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="10sp"
+            android:fontFamily="@font/nunito_semibold"
+            android:gravity="center_horizontal|top"
+            android:letterSpacing="-0.02"
+            android:lineSpacingExtra="-4sp"
+            android:text="Or"
+            android:textColor="@color/grey"
+            android:textSize="16sp" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:paddingLeft="18dp"
+        android:paddingTop="20dp"
+        android:paddingRight="18dp">
+
+        <!--    Title    -->
+        <RelativeLayout
+            android:id="@+id/Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/back_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:alpha="0.9"
+                android:background="@drawable/icon_leftarrow" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="24dp"
+                android:layout_toEndOf="@+id/back_btn"
+                android:fontFamily="@font/nunito"
+                android:gravity="center_horizontal|top"
+                android:lineSpacingExtra="2sp"
+                android:text="Register"
+                android:textSize="20sp" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/Input_Field"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/Title"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="30dp">
+
+            <!--    Email Input    -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/reg_email_input_field"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:fontFamily="@font/nunito"
+                android:textColorHint="@color/grey"
+                android:textSize="12sp"
+                app:boxStrokeColor="@color/primary"
+                app:boxStrokeWidth="0.9dp"
+                app:boxStrokeWidthFocused="0.9dp"
+                app:endIconTint="@color/primary"
+                app:errorEnabled="true"
+                app:hintTextColor="@color/primary"
+                app:startIconTint="@color/black"
+                app:suffixTextColor="@color/black">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/reg_email_input"
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/nunito"
+                    android:hint="Email address"
+                    android:hyphenationFrequency="none"
+                    android:inputType="textEmailAddress"
+                    android:letterSpacing="-0.02" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--    Name Input    -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/reg_name_input_field"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/reg_email_input_field"
+                android:layout_centerHorizontal="true"
+                android:fontFamily="@font/nunito"
+                android:textColorHint="@color/grey"
+                android:textSize="12sp"
+                app:boxStrokeColor="@color/primary"
+                app:boxStrokeWidth="0.9dp"
+                app:boxStrokeWidthFocused="0.9dp"
+                app:endIconTint="@color/primary"
+                app:errorEnabled="true"
+                app:hintTextColor="@color/primary"
+                app:startIconTint="@color/black"
+                app:suffixTextColor="@color/black">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/reg_name_input"
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/nunito"
+                    android:hint="Name"
+                    android:hyphenationFrequency="none"
+                    android:inputType="text"
+                    android:letterSpacing="-0.02" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--    Password Input    -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/reg_password_input_field"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/reg_name_input_field"
+                android:layout_centerHorizontal="true"
+                android:fontFamily="@font/nunito"
+                android:textColorHint="@color/grey"
+                android:textSize="12sp"
+                app:boxStrokeColor="@color/primary"
+                app:boxStrokeWidth="0.9dp"
+                app:boxStrokeWidthFocused="0.9dp"
+                app:endIconMode="password_toggle"
+                app:endIconTint="@color/grey"
+                app:errorEnabled="true"
+                app:hintTextColor="@color/primary"
+                app:startIconTint="@color/black"
+                app:suffixTextColor="@color/black">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/reg_password_input"
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/nunito"
+                    android:hint="Password"
+                    android:hyphenationFrequency="none"
+                    android:inputType="textPassword"
+                    android:letterSpacing="-0.02" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <RelativeLayout
+                android:id="@+id/Language_and_country"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/reg_password_input_field">
+
+                <!--    Language Input    -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/reg_language_input_field"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                    android:layout_width="140dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerHorizontal="true"
+                    android:fontFamily="@font/nunito"
+                    android:textColorHint="@color/grey"
+                    android:textSize="12sp"
+                    app:boxStrokeColor="@color/primary"
+                    app:boxStrokeWidth="0.9dp"
+                    app:boxStrokeWidthFocused="0.9dp"
+                    app:endIconTint="@color/grey"
+                    app:hintTextColor="@color/primary"
+                    app:startIconTint="@color/black"
+                    app:suffixTextColor="@color/black">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/reg_language_input"
+                        android:layout_width="140dp"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/nunito"
+                        android:hint="Language"
+                        android:hyphenationFrequency="none"
+                        android:inputType="text"
+                        android:letterSpacing="-0.02" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!--    Country Input    -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/reg_country_input_field"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                    android:layout_width="140dp"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginLeft="20dp"
+                    android:layout_toEndOf="@id/reg_language_input_field"
+                    android:fontFamily="@font/nunito"
+                    android:textColorHint="@color/grey"
+                    android:textSize="12sp"
+                    app:boxStrokeColor="@color/primary"
+                    app:boxStrokeWidth="0.9dp"
+                    app:boxStrokeWidthFocused="0.9dp"
+                    app:endIconTint="@color/grey"
+                    app:hintTextColor="@color/primary"
+                    app:startIconTint="@color/black"
+                    app:suffixTextColor="@color/black">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/reg_country_input"
+                        android:layout_width="140dp"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/nunito"
+                        android:hint="Country"
+                        android:hyphenationFrequency="none"
+                        android:inputType="text"
+                        android:letterSpacing="-0.02" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </RelativeLayout>
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/checkbox"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/Language_and_country"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="12dp"
+                android:checked="true"
+                android:padding="8sp"
+                android:text="Desygner can contact me via email. You can always change this later"
+                android:textSize="12sp"
+                app:boxStrokeColor="@color/primary" />
+
+            <!--    Submit Button    -->
+            <android.widget.Button
+                android:id="@+id/register_submit_btn"
+                android:layout_width="300dp"
+                android:layout_height="45dp"
+                android:layout_below="@id/checkbox"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/radius_8px_primary_color"
+                android:fontFamily="@font/nunito_bold"
+                android:gravity="center"
+                android:text="Register"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="14sp" />
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+</RelativeLayout>
