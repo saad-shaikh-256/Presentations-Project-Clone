@@ -7,8 +7,10 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.Toast
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import com.google.firebase.firestore.FirebaseFirestore
 
 class register_page : AppCompatActivity() {
 
@@ -24,9 +26,13 @@ class register_page : AppCompatActivity() {
     private val regCountryInput by lazy { findViewById<TextInputEditText>(R.id.reg_country_input) }
     private val regSubmitBtn by lazy { findViewById<Button>(R.id.register_submit_btn) }
 
+    private lateinit var firestore: FirebaseFirestore
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register_page)
+
+        firestore = FirebaseFirestore.getInstance() // Initialize Firestore instance
 
         // Handle the back button click
         val backBtn = findViewById<ImageView>(R.id.back_btn)
@@ -50,9 +56,6 @@ class register_page : AppCompatActivity() {
             // Validate email
             if (email.isEmpty()) {
                 regEmailInputField.error = "Email address is required"
-                isValid = false
-            } else if (email == "demo@gmail.com") {
-                regEmailInputField.error = "Email Already Exists"
                 isValid = false
             } else {
                 regEmailInputField.error = null
@@ -94,9 +97,16 @@ class register_page : AppCompatActivity() {
             }
 
             if (isValid) {
-                // All fields are valid, proceed with next action
-                val nextIntent = Intent(this, MainActivity::class.java)
-                startActivity(nextIntent)
+                // Check if email already exists in Firestore
+                checkEmailExists(email) { emailExists ->
+                    if (emailExists) {
+                        regEmailInputField.error = "Email already registered"
+                        Toast.makeText(this, "Email already registered", Toast.LENGTH_SHORT).show()
+                    } else {
+                        // All fields are valid and email is not taken, proceed with registration
+                        registerUser(email, name, password, language, country)
+                    }
+                }
             }
         }
 
@@ -110,7 +120,7 @@ class register_page : AppCompatActivity() {
         regEmailInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                regEmailInputField.error = if (s.toString() == "demo@gmail.com") "Email Already Exists" else null
+                regEmailInputField.error = null
             }
             override fun afterTextChanged(s: Editable?) {}
         })
@@ -126,7 +136,7 @@ class register_page : AppCompatActivity() {
         regPasswordInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                regPasswordInputField.error = if (s.toString() != "123456") "Please enter valid password" else null
+                regPasswordInputField.error = null
             }
             override fun afterTextChanged(s: Editable?) {}
         })
@@ -146,5 +156,39 @@ class register_page : AppCompatActivity() {
             }
             override fun afterTextChanged(s: Editable?) {}
         })
+    }
+
+    private fun checkEmailExists(email: String, callback: (Boolean) -> Unit) {
+        firestore.collection("users")
+            .whereEqualTo("email", email)
+            .get()
+            .addOnSuccessListener { documents ->
+                callback(!documents.isEmpty)
+            }
+            .addOnFailureListener {
+                callback(false) // Handle failure case
+            }
+    }
+
+    private fun registerUser(email: String, name: String, password: String, language: String, country: String) {
+        val userData = hashMapOf(
+            "email" to email,
+            "name" to name,
+            "password" to password, // Remember to encrypt this password before saving
+            "language" to language,
+            "country" to country
+        )
+
+        firestore.collection("users")
+            .add(userData)
+            .addOnSuccessListener {
+                Toast.makeText(this, "Registration successful", Toast.LENGTH_SHORT).show()
+                val nextIntent = Intent(this, Home::class.java)
+                startActivity(nextIntent)
+                finish()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Error registering user: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
     }
 }
