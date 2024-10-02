@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.firestore.FirebaseFirestore
+import org.mindrot.jbcrypt.BCrypt // Import BCrypt
 
 class login_page : AppCompatActivity() {
 
@@ -30,9 +31,10 @@ class login_page : AppCompatActivity() {
 
         firestore = FirebaseFirestore.getInstance() // Initialize Firestore instance
 
+        // Handle the back button click
         val backBtn = findViewById<ImageView>(R.id.back_btn)
         backBtn.setOnClickListener {
-            val backIntent = Intent(this, login_with_email_page::class.java)
+            val backIntent = Intent(this, MainActivity::class.java)
             startActivity(backIntent)
         }
 
@@ -42,6 +44,7 @@ class login_page : AppCompatActivity() {
         continueWithEmail.setOnClickListener {
             val email = emailInput.text.toString()
             val password = passwordInput.text.toString()
+
             var isValid = true
 
             // Validate email
@@ -60,28 +63,51 @@ class login_page : AppCompatActivity() {
                 passwordInputField.error = null
             }
 
-            // Check if all inputs are valid
             if (isValid) {
                 checkUserInFirestore(email, password)
             }
         }
     }
 
+    private fun addTextWatchers() {
+        emailInput.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                emailInputField.error = null
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+        passwordInput.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                passwordInputField.error = null
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+    }
+
     private fun checkUserInFirestore(email: String, password: String) {
         firestore.collection("users")
             .whereEqualTo("email", email)
-            .whereEqualTo(
-                "password",
-                password
-            ) // Assuming you store plaintext passwords (Consider hashing them)
             .get()
             .addOnSuccessListener { documents ->
                 if (!documents.isEmpty) {
-                    // Email and password match found in Firestore
-                    Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
-                    val intent = Intent(this, Home::class.java)
-                    startActivity(intent)
-                    finish()
+                    // Assuming only one document per user
+                    val userDocument = documents.documents[0]
+                    val storedPassword = userDocument.getString("password")
+
+                    // Check if the entered password matches the stored hashed password
+                    if (storedPassword != null && BCrypt.checkpw(password, storedPassword)) {
+                        // Password matches
+                        Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
+                        val intent = Intent(this, Home::class.java)
+                        startActivity(intent)
+                        finish()
+                    } else {
+                        // Password does not match
+                        Toast.makeText(this, "Invalid email or password", Toast.LENGTH_SHORT).show()
+                    }
                 } else {
                     // No matching account found
                     Toast.makeText(this, "Invalid email or password", Toast.LENGTH_SHORT).show()
@@ -89,30 +115,7 @@ class login_page : AppCompatActivity() {
             }
             .addOnFailureListener { exception ->
                 Log.w(TAG, "Error checking user in Firestore", exception)
-                Toast.makeText(this, "An error occurred. Please try again.", Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(this, "An error occurred. Please try again.", Toast.LENGTH_SHORT).show()
             }
-    }
-
-    private fun addTextWatchers() {
-        emailInput.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                // Clear error as soon as the user starts typing
-                emailInputField.error = null
-            }
-
-            override fun afterTextChanged(s: Editable?) {}
-        })
-
-        passwordInput.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                // Clear error as soon as the user starts typing
-                passwordInputField.error = null
-            }
-
-            override fun afterTextChanged(s: Editable?) {}
-        })
     }
 }

@@ -11,6 +11,7 @@ import android.widget.Toast
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.firestore.FirebaseFirestore
+import org.mindrot.jbcrypt.BCrypt // Import BCrypt
 
 class register_page : AppCompatActivity() {
 
@@ -111,7 +112,7 @@ class register_page : AppCompatActivity() {
         }
 
         // Set default values
-        regEmailInput.setText("new@gmail.com")
+        regEmailInput.setText("user@gmail.com")
         regLanguageInput.setText("English")
         regCountryInput.setText("India")
     }
@@ -171,10 +172,13 @@ class register_page : AppCompatActivity() {
     }
 
     private fun registerUser(email: String, name: String, password: String, language: String, country: String) {
+        // Encrypt the password
+        val encryptedPassword = hashPassword(password)
+
         val userData = hashMapOf(
             "email" to email,
             "name" to name,
-            "password" to password, // Remember to encrypt this password before saving
+            "password" to encryptedPassword, // Save the encrypted password
             "language" to language,
             "country" to country
         )
@@ -190,5 +194,10 @@ class register_page : AppCompatActivity() {
             .addOnFailureListener { e ->
                 Toast.makeText(this, "Error registering user: ${e.message}", Toast.LENGTH_SHORT).show()
             }
+    }
+
+    // Function to hash the password
+    private fun hashPassword(password: String): String {
+        return BCrypt.hashpw(password, BCrypt.gensalt())
     }
 }
