@@ -11,7 +11,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class login_page : AppCompatActivity() {
@@ -66,13 +65,15 @@ class login_page : AppCompatActivity() {
                 checkUserInFirestore(email, password)
             }
         }
-        emailInput.setText("demo@gmail.com")
     }
 
     private fun checkUserInFirestore(email: String, password: String) {
         firestore.collection("users")
             .whereEqualTo("email", email)
-            .whereEqualTo("password", password) // Assuming you store plaintext passwords (Consider hashing them)
+            .whereEqualTo(
+                "password",
+                password
+            ) // Assuming you store plaintext passwords (Consider hashing them)
             .get()
             .addOnSuccessListener { documents ->
                 if (!documents.isEmpty) {
@@ -88,7 +89,8 @@ class login_page : AppCompatActivity() {
             }
             .addOnFailureListener { exception ->
                 Log.w(TAG, "Error checking user in Firestore", exception)
-                Toast.makeText(this, "An error occurred. Please try again.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "An error occurred. Please try again.", Toast.LENGTH_SHORT)
+                    .show()
             }
     }
 

@@ -31,7 +31,7 @@ class login_with_email_page : AppCompatActivity() {
 
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
-    private lateinit var firestore: FirebaseFirestore
+    private lateinit var firestore: FirebaseFirestore // Initialize Firestore
 
     private val RC_SIGN_IN = 9001 // Request code for Google Sign-In
     private val TAG = "login_with_email_page"
@@ -69,9 +69,11 @@ class login_with_email_page : AppCompatActivity() {
                     email.isEmpty() -> {
                         emailInputField.error = null
                     }
+
                     isValidEmail(email) -> {
                         emailInputField.error = null
                     }
+
                     else -> {
                         emailInputField.error = "Please enter a valid email"
                     }
@@ -88,10 +90,12 @@ class login_with_email_page : AppCompatActivity() {
                 email.isEmpty() -> {
                     emailInputField.error = "Email address is required"
                 }
+
                 isValidEmail(email) -> {
                     emailInputField.error = null
                     checkEmailInFirestore(email) // Check if the email exists in Firestore
                 }
+
                 else -> {
                     emailInputField.error = "Please enter a valid email"
                 }
@@ -131,10 +135,14 @@ class login_with_email_page : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
-                    // Redirect to the home page after successful Google login
-                    val intent = Intent(this, Home::class.java)
-                    startActivity(intent)
-                    finish()
+                    val user = firebaseAuth.currentUser
+                    val email = user?.email
+
+                    if (email != null) {
+                        checkEmailInFirestore(email) // Check if the email exists in Firestore
+                    } else {
+                        Toast.makeText(this, "Failed to retrieve email", Toast.LENGTH_SHORT).show()
+                    }
                 } else {
                     Log.w(TAG, "signInWithCredential:failure", task.exception)
                     Toast.makeText(this, "Authentication Failed.", Toast.LENGTH_SHORT).show()
@@ -143,7 +151,7 @@ class login_with_email_page : AppCompatActivity() {
     }
 
     private fun checkEmailInFirestore(email: String) {
-        firestore.collection("users") // Using the "users" collection name
+        firestore.collection("users")
             .whereEqualTo("email", email)
             .get()
             .addOnSuccessListener { documents ->
@@ -155,7 +163,8 @@ class login_with_email_page : AppCompatActivity() {
                     finish()
                 } else {
                     // Email does not exist in Firestore
-                    Toast.makeText(this, "Email not found. Please register.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Email not found. Please register.", Toast.LENGTH_SHORT)
+                        .show()
                     val intent = Intent(this, register_page::class.java)
                     startActivity(intent)
                     finish()
@@ -163,7 +172,8 @@ class login_with_email_page : AppCompatActivity() {
             }
             .addOnFailureListener { exception ->
                 Log.w(TAG, "Error checking email in Firestore", exception)
-                Toast.makeText(this, "An error occurred. Please try again.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "An error occurred. Please try again.", Toast.LENGTH_SHORT)
+                    .show()
             }
     }
 
