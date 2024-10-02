@@ -19,6 +19,7 @@ import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.firestore.FirebaseFirestore
 
 class login_with_email_page : AppCompatActivity() {
 
@@ -30,6 +31,8 @@ class login_with_email_page : AppCompatActivity() {
 
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
+    private lateinit var firestore: FirebaseFirestore
+
     private val RC_SIGN_IN = 9001 // Request code for Google Sign-In
     private val TAG = "login_with_email_page"
 
@@ -38,6 +41,7 @@ class login_with_email_page : AppCompatActivity() {
         setContentView(R.layout.activity_login_with_email_page)
 
         firebaseAuth = FirebaseAuth.getInstance()
+        firestore = FirebaseFirestore.getInstance() // Initialize Firestore instance
 
         // Google Sign-In configuration
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -86,12 +90,7 @@ class login_with_email_page : AppCompatActivity() {
                 }
                 isValidEmail(email) -> {
                     emailInputField.error = null
-                    // Navigate to the respective page based on email
-                    when (email) {
-                        "new@gmail.com" -> startActivity(Intent(this, register_page::class.java))
-                        "demo@gmail.com" -> startActivity(Intent(this, login_page::class.java))
-                        else -> Toast.makeText(this, "Unknown email", Toast.LENGTH_SHORT).show()
-                    }
+                    checkEmailInFirestore(email) // Check if the email exists in Firestore
                 }
                 else -> {
                     emailInputField.error = "Please enter a valid email"
@@ -132,6 +131,7 @@ class login_with_email_page : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
+                    // Redirect to the home page after successful Google login
                     val intent = Intent(this, Home::class.java)
                     startActivity(intent)
                     finish()
@@ -139,6 +139,31 @@ class login_with_email_page : AppCompatActivity() {
                     Log.w(TAG, "signInWithCredential:failure", task.exception)
                     Toast.makeText(this, "Authentication Failed.", Toast.LENGTH_SHORT).show()
                 }
+            }
+    }
+
+    private fun checkEmailInFirestore(email: String) {
+        firestore.collection("users") // Using the "users" collection name
+            .whereEqualTo("email", email)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    // Email exists in Firestore
+                    Toast.makeText(this, "Email already registered", Toast.LENGTH_SHORT).show()
+                    val intent = Intent(this, login_page::class.java)
+                    startActivity(intent)
+                    finish()
+                } else {
+                    // Email does not exist in Firestore
+                    Toast.makeText(this, "Email not found. Please register.", Toast.LENGTH_SHORT).show()
+                    val intent = Intent(this, register_page::class.java)
+                    startActivity(intent)
+                    finish()
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.w(TAG, "Error checking email in Firestore", exception)
+                Toast.makeText(this, "An error occurred. Please try again.", Toast.LENGTH_SHORT).show()
             }
     }
 
