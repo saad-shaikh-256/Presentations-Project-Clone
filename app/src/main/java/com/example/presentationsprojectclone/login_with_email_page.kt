@@ -31,9 +31,9 @@ class login_with_email_page : AppCompatActivity() {
 
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
-    private lateinit var firestore: FirebaseFirestore // Initialize Firestore
+    private lateinit var firestore: FirebaseFirestore
 
-    private val RC_SIGN_IN = 9001 // Request code for Google Sign-In
+    private val RC_SIGN_IN = 9001
     private val TAG = "login_with_email_page"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,9 +41,9 @@ class login_with_email_page : AppCompatActivity() {
         setContentView(R.layout.activity_login_with_email_page)
 
         firebaseAuth = FirebaseAuth.getInstance()
-        firestore = FirebaseFirestore.getInstance() // Initialize Firestore instance
+        firestore = FirebaseFirestore.getInstance()
 
-        // Google Sign-In configuration
+        // Configure Google Sign-In
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.web_client_id)) // Replace with your actual web client ID
             .requestEmail()
@@ -59,25 +59,12 @@ class login_with_email_page : AppCompatActivity() {
             Toast.makeText(this, "Facebook login not implemented yet", Toast.LENGTH_SHORT).show()
         }
 
-        // Add TextWatcher to clear the error or show a valid email error while typing
+        // TextWatcher to validate email input
         emailInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val email = s.toString()
-                when {
-                    email.isEmpty() -> {
-                        emailInputField.error = null
-                    }
-
-                    isValidEmail(email) -> {
-                        emailInputField.error = null
-                    }
-
-                    else -> {
-                        emailInputField.error = "Please enter a valid email"
-                    }
-                }
+                emailInputField.error = if (isValidEmail(s.toString())) null else "Please enter a valid email"
             }
 
             override fun afterTextChanged(s: Editable?) {}
@@ -85,20 +72,10 @@ class login_with_email_page : AppCompatActivity() {
 
         continueWithEmail.setOnClickListener {
             val email = emailInput.text.toString()
-
             when {
-                email.isEmpty() -> {
-                    emailInputField.error = "Email address is required"
-                }
-
-                isValidEmail(email) -> {
-                    emailInputField.error = null
-                    checkEmailInFirestore(email) // Check if the email exists in Firestore
-                }
-
-                else -> {
-                    emailInputField.error = "Please enter a valid email"
-                }
+                email.isEmpty() -> emailInputField.error = "Email address is required"
+                isValidEmail(email) -> checkEmailInFirestore(email)
+                else -> emailInputField.error = "Please enter a valid email"
             }
         }
     }
@@ -119,8 +96,8 @@ class login_with_email_page : AppCompatActivity() {
     private fun handleSignInResult(task: Task<GoogleSignInAccount>) {
         try {
             val account = task.getResult(ApiException::class.java)
-            if (account != null) {
-                val idToken = account.idToken
+            account?.let {
+                val idToken = it.idToken
                 val credential = GoogleAuthProvider.getCredential(idToken, null)
                 firebaseAuthWithGoogle(credential)
             }
@@ -135,20 +112,16 @@ class login_with_email_page : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
-                    val user = firebaseAuth.currentUser
-                    val email = user?.email
-
-                    if (email != null) {
-                        checkEmailInFirestore(email) // Check if the email exists in Firestore
-                    } else {
-                        Toast.makeText(this, "Failed to retrieve email", Toast.LENGTH_SHORT).show()
-                    }
+                    // Redirect to home page
+                    startActivity(Intent(this, Home::class.java))
+                    finish()
                 } else {
                     Log.w(TAG, "signInWithCredential:failure", task.exception)
                     Toast.makeText(this, "Authentication Failed.", Toast.LENGTH_SHORT).show()
                 }
             }
     }
+
 
     private fun checkEmailInFirestore(email: String) {
         firestore.collection("users")
@@ -158,22 +131,18 @@ class login_with_email_page : AppCompatActivity() {
                 if (!documents.isEmpty) {
                     // Email exists in Firestore
                     Toast.makeText(this, "Email already registered", Toast.LENGTH_SHORT).show()
-                    val intent = Intent(this, login_page::class.java)
-                    startActivity(intent)
+                    startActivity(Intent(this, login_page::class.java))
                     finish()
                 } else {
                     // Email does not exist in Firestore
-                    Toast.makeText(this, "Email not found. Please register.", Toast.LENGTH_SHORT)
-                        .show()
-                    val intent = Intent(this, register_page::class.java)
-                    startActivity(intent)
+                    Toast.makeText(this, "Email not found. Please register.", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this, register_page::class.java))
                     finish()
                 }
             }
             .addOnFailureListener { exception ->
                 Log.w(TAG, "Error checking email in Firestore", exception)
-                Toast.makeText(this, "An error occurred. Please try again.", Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(this, "An error occurred. Please try again.", Toast.LENGTH_SHORT).show()
             }
     }
 
