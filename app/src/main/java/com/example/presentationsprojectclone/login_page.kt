@@ -4,11 +4,15 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class login_page : AppCompatActivity() {
 
@@ -18,15 +22,21 @@ class login_page : AppCompatActivity() {
     private val passwordInput by lazy { findViewById<TextInputEditText>(R.id.log_password_input) }
     private val continueWithEmail by lazy { findViewById<Button>(R.id.login_submit_btn) }
 
+    private lateinit var firestore: FirebaseFirestore
+    private val TAG = "login_page"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login_page)
+
+        firestore = FirebaseFirestore.getInstance() // Initialize Firestore instance
 
         val backBtn = findViewById<ImageView>(R.id.back_btn)
         backBtn.setOnClickListener {
             val backIntent = Intent(this, login_with_email_page::class.java)
             startActivity(backIntent)
         }
+
         // Add TextWatchers to clear errors when typing
         addTextWatchers()
 
@@ -39,14 +49,8 @@ class login_page : AppCompatActivity() {
             if (email.isEmpty()) {
                 emailInputField.error = "Email address is required"
                 isValid = false
-            } else if (email == "new@gmail.com" || email == "demo@gmail.com") {
-                emailInputField.error = null
-                // Proceed with the intent to the register page
-                startActivity(Intent(this, MainActivity::class.java))
-
             } else {
-                emailInputField.error = "Please enter a valid email"
-                isValid = false
+                emailInputField.error = null
             }
 
             // Validate password
@@ -59,11 +63,33 @@ class login_page : AppCompatActivity() {
 
             // Check if all inputs are valid
             if (isValid) {
-                // Proceed to the next activity
-                startActivity(Intent(this, MainActivity::class.java))
+                checkUserInFirestore(email, password)
             }
         }
         emailInput.setText("demo@gmail.com")
+    }
+
+    private fun checkUserInFirestore(email: String, password: String) {
+        firestore.collection("users")
+            .whereEqualTo("email", email)
+            .whereEqualTo("password", password) // Assuming you store plaintext passwords (Consider hashing them)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    // Email and password match found in Firestore
+                    Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
+                    val intent = Intent(this, Home::class.java)
+                    startActivity(intent)
+                    finish()
+                } else {
+                    // No matching account found
+                    Toast.makeText(this, "Invalid email or password", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.w(TAG, "Error checking user in Firestore", exception)
+                Toast.makeText(this, "An error occurred. Please try again.", Toast.LENGTH_SHORT).show()
+            }
     }
 
     private fun addTextWatchers() {
@@ -72,13 +98,6 @@ class login_page : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 // Clear error as soon as the user starts typing
                 emailInputField.error = null
-
-                // Provide real-time validation
-                if (s.toString() == "new@gmail.com" || s.toString() == "demo@gmail.com") {
-                    emailInputField.error = null
-                } else if (s.toString().isNotEmpty()) {
-                    emailInputField.error = "Please enter a valid email"
-                }
             }
 
             override fun afterTextChanged(s: Editable?) {}
@@ -88,8 +107,7 @@ class login_page : AppCompatActivity() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 // Clear error as soon as the user starts typing
-                passwordInputField.error =
-                    if (s.toString() != "123456") "Please enter valid password" else null
+                passwordInputField.error = null
             }
 
             override fun afterTextChanged(s: Editable?) {}
