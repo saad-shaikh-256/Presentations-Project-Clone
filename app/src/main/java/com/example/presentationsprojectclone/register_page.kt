@@ -1,17 +1,17 @@
 package com.example.presentationsprojectclone
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.firestore.FirebaseFirestore
-import org.mindrot.jbcrypt.BCrypt // Import BCrypt
+import org.mindrot.jbcrypt.BCrypt
 
 class register_page : AppCompatActivity() {
 
@@ -123,6 +123,7 @@ class register_page : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 regEmailInputField.error = null
             }
+
             override fun afterTextChanged(s: Editable?) {}
         })
 
@@ -131,6 +132,7 @@ class register_page : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 regNameInputField.error = null
             }
+
             override fun afterTextChanged(s: Editable?) {}
         })
 
@@ -139,6 +141,7 @@ class register_page : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 regPasswordInputField.error = null
             }
+
             override fun afterTextChanged(s: Editable?) {}
         })
 
@@ -147,6 +150,7 @@ class register_page : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 regLanguageInputField.error = null
             }
+
             override fun afterTextChanged(s: Editable?) {}
         })
 
@@ -155,6 +159,7 @@ class register_page : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 regCountryInputField.error = null
             }
+
             override fun afterTextChanged(s: Editable?) {}
         })
     }
@@ -171,18 +176,26 @@ class register_page : AppCompatActivity() {
             }
     }
 
-    private fun registerUser(email: String, name: String, password: String, language: String, country: String) {
-        // Encrypt the password
+    private fun registerUser(
+        email: String,
+        name: String,
+        password: String,
+        language: String,
+        country: String
+    ) {
+        // Encrypt the password using BCrypt
         val encryptedPassword = hashPassword(password)
 
+        // Create a map with the user data, storing the encrypted password
         val userData = hashMapOf(
             "email" to email,
             "name" to name,
-            "password" to encryptedPassword, // Save the encrypted password
+            "password" to encryptedPassword, // Save the encrypted password here
             "language" to language,
             "country" to country
         )
 
+        // Add user data to Firestore
         firestore.collection("users")
             .add(userData)
             .addOnSuccessListener {
@@ -192,7 +205,8 @@ class register_page : AppCompatActivity() {
                 finish()
             }
             .addOnFailureListener { e ->
-                Toast.makeText(this, "Error registering user: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Error registering user: ${e.message}", Toast.LENGTH_SHORT)
+                    .show()
             }
     }
 

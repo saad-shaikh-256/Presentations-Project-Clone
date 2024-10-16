@@ -60,7 +60,11 @@ class Forgot_Password_page : AppCompatActivity() {
                 }
             }
             .addOnFailureListener { exception ->
-                Toast.makeText(this, "Error checking user: ${exception.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this,
+                    "Error checking user: ${exception.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
     }
 
@@ -71,7 +75,11 @@ class Forgot_Password_page : AppCompatActivity() {
                 if (task.isSuccessful) {
                     showAlertDialog()
                 } else {
-                    Toast.makeText(this, "Failed to send reset email: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        "Failed to send reset email: ${task.exception?.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
     }
@@ -79,7 +87,7 @@ class Forgot_Password_page : AppCompatActivity() {
     // Function to display the confirmation dialog
     private fun showAlertDialog() {
         val builder = AlertDialog.Builder(this)
-        builder.setMessage("We've sent an email to your specified address. It should arrive within the next few minutes! If you are having trouble locating the email, please check your junk folder.")
+        builder.setMessage("We've swent an email to your specified address. It should arrive within the next few minutes! If you are having trouble locating the email, please check your junk folder.")
             .setCancelable(false)
             .setPositiveButton("OK") { dialog, id ->
                 dialog.dismiss()

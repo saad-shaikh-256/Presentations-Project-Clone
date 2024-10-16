@@ -2,9 +2,9 @@ package com.example.presentationsprojectclone
 
 import android.content.Intent
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.VideoView
+import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.FirebaseApp
 
 

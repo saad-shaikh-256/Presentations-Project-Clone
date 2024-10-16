@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Presentations Project Clone</string>
     <string name="web_client_id">691274633221-2e61sr18u95ts8hq00blokku42nm2t5a.apps.googleusercontent.com</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

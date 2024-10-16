@@ -64,7 +64,8 @@ class login_with_email_page : AppCompatActivity() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                emailInputField.error = if (isValidEmail(s.toString())) null else "Please enter a valid email"
+                emailInputField.error =
+                    if (isValidEmail(s.toString())) null else "Please enter a valid email"
             }
 
             override fun afterTextChanged(s: Editable?) {}
@@ -135,14 +136,16 @@ class login_with_email_page : AppCompatActivity() {
                     finish()
                 } else {
                     // Email does not exist in Firestore
-                    Toast.makeText(this, "Email not found. Please register.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Email not found. Please register.", Toast.LENGTH_SHORT)
+                        .show()
                     startActivity(Intent(this, register_page::class.java))
                     finish()
                 }
             }
             .addOnFailureListener { exception ->
                 Log.w(TAG, "Error checking email in Firestore", exception)
-                Toast.makeText(this, "An error occurred. Please try again.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "An error occurred. Please try again.", Toast.LENGTH_SHORT)
+                    .show()
             }
     }
 

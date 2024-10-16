@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/my_projects"
+        android:icon="@drawable/project_nav_icon"
+        android:title="My Projects"
+
+        />
+    <item android:id="@+id/templates"
+        android:icon="@drawable/templates_nav_icon"
+        android:title="Templates"
+        app:showAsAction="always"
+
+        />
+    <item android:id="@+id/image"
+        android:icon="@drawable/image_nav_icon"
+        android:title="Images"
+
+        />
+    <item android:id="@+id/assets"
+        android:icon="@drawable/assets_nav_icon"
+        android:title="My Assets"
+
+        />
+    <item android:id="@+id/more"
+        android:icon="@drawable/more_nav_icon"
+        android:title="More"
+
+        />
+</menu>

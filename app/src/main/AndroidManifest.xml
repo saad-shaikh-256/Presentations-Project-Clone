@@ -18,20 +18,9 @@
         <activity
             android:name=".Forgot_Password_page"
             android:exported="false" />
+
         <activity
             android:name=".Home"
-            android:exported="false" />
-        <activity
-            android:name=".login_page"
-            android:exported="false" />
-        <activity
-            android:name=".register_page"
-            android:exported="false" />
-        <activity
-            android:name=".login_with_email_page"
-            android:exported="false" />
-        <activity
-            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -39,6 +28,28 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".login_page"
+            android:exported="false" />
+
+        <activity
+            android:name=".register_page"
+            android:exported="false" />
+        <activity
+            android:name=".login_with_email_page"
+            android:exported="false" />
+        <!--        <activity-->
+        <!--            android:name=".MainActivity"-->
+        <!--            android:exported="true">-->
+        <!--            <intent-filter>-->
+        <!--                <action android:name="android.intent.action.MAIN" />-->
+
+        <!--                <category android:name="android.intent.category.LAUNCHER" />-->
+        <!--            </intent-filter>-->
+        <!--        </activity>-->
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
 
         <meta-data
             android:name="preloaded_fonts"

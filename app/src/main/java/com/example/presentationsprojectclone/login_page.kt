@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
@@ -14,6 +13,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import org.mindrot.jbcrypt.BCrypt
 
 class login_page : AppCompatActivity() {
 
@@ -22,7 +22,6 @@ class login_page : AppCompatActivity() {
     private val passwordInputField by lazy { findViewById<TextInputLayout>(R.id.log_password_input_field) }
     private val passwordInput by lazy { findViewById<TextInputEditText>(R.id.log_password_input) }
     private val continueWithEmail by lazy { findViewById<Button>(R.id.login_submit_btn) }
-
     private lateinit var firestore: FirebaseFirestore
     private lateinit var auth: FirebaseAuth // Firebase Auth instance
     private val TAG = "login_page"
@@ -31,17 +30,18 @@ class login_page : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login_page)
 
-        // Initialize Firebase instances
+        // Initialize Firebase Auth instance
         firestore = FirebaseFirestore.getInstance()
         auth = FirebaseAuth.getInstance()
 
         // Handle the back button click
         val backBtn = findViewById<ImageView>(R.id.back_btn)
         backBtn.setOnClickListener {
-            val backIntent = Intent(this, MainActivity::class.java)
+            val backIntent = Intent(this, login_with_email_page::class.java)
             startActivity(backIntent)
         }
 
+        // Handle forgot password navigation
         val forgot = findViewById<TextView>(R.id.log_forgot_password)
         forgot.setOnClickListener {
             val forgotIntent = Intent(this, Forgot_Password_page::class.java)
@@ -62,6 +62,9 @@ class login_page : AppCompatActivity() {
             if (email.isEmpty()) {
                 emailInputField.error = "Email address is required"
                 isValid = false
+            } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                emailInputField.error = "Invalid email format"
+                isValid = false
             } else {
                 emailInputField.error = null
             }
@@ -69,6 +72,9 @@ class login_page : AppCompatActivity() {
             // Validate password
             if (password.isEmpty()) {
                 passwordInputField.error = "Password is required"
+                isValid = false
+            } else if (password.length < 6) {
+                passwordInputField.error = "Password must be at least 6 characters"
                 isValid = false
             } else {
                 passwordInputField.error = null
@@ -87,6 +93,7 @@ class login_page : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 emailInputField.error = null
             }
+
             override fun afterTextChanged(s: Editable?) {}
         })
 
@@ -95,51 +102,39 @@ class login_page : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 passwordInputField.error = null
             }
+
             override fun afterTextChanged(s: Editable?) {}
         })
     }
 
-    // Login user using Firebase Authentication
+    // Login user using Firebase Authentication and Firestore with BCrypt encrypted password
     private fun loginUserWithEmailAndPassword(email: String, password: String) {
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    // Authentication successful, get additional data from Firestore
-                    getUserDataFromFirestore(email)
-                } else {
-                    // Handle authentication failure
-                    Toast.makeText(this, "Login failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
-                }
-            }
-    }
-
-    // Retrieve user data from Firestore after successful authentication
-    private fun getUserDataFromFirestore(email: String) {
         firestore.collection("users")
             .whereEqualTo("email", email)
             .get()
             .addOnSuccessListener { documents ->
                 if (!documents.isEmpty) {
-                    // Get the user document
-                    val userDocument = documents.documents[0]
+                    val document = documents.documents[0]
+                    val encryptedPassword = document.getString("password") // Get the encrypted password
 
-                    // Fetch and display additional data if needed (like language and country)
-                    val language = userDocument.getString("language")
-                    val country = userDocument.getString("country")
-
-                    // Proceed to the Home page or wherever you need
-                    Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
-                    val intent = Intent(this, Home::class.java)
-                    startActivity(intent)
-                    finish()
+                    // Compare the entered password with the encrypted password using BCrypt
+                    if (encryptedPassword != null && BCrypt.checkpw(password, encryptedPassword)) {
+                        Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
+                        val intent = Intent(this, Home::class.java)
+                        startActivity(intent)
+                        finish()
+                    } else {
+                        // If the passwords don't match
+                        Toast.makeText(this, "Incorrect password", Toast.LENGTH_LONG).show()
+                    }
                 } else {
-                    // No user data found in Firestore
-                    Toast.makeText(this, "No user data found", Toast.LENGTH_SHORT).show()
+                    // If the email does not exist in Firestore
+                    Toast.makeText(this, "Email not found", Toast.LENGTH_LONG).show()
                 }
             }
-            .addOnFailureListener { exception ->
-                Log.w(TAG, "Error getting documents: ", exception)
-                Toast.makeText(this, "Failed to retrieve user data", Toast.LENGTH_SHORT).show()
+            .addOnFailureListener { e ->
+                // Handle error case
+                Toast.makeText(this, "Error retrieving user: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
 }
